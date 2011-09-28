@@ -26,7 +26,8 @@ namespace :spork do
         # If you want to change the default config you can
         # specify the command line options here
         # For example to change the port:
-        options = ["--port", "7443"]
+        # options = ["--port", "7443"]
+        options = []
         begin
           Spork::Runner.run(options, $stderr, $stderr)
         rescue => e
