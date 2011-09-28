@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name        = "spork_tasks"
-  s.version     = "0.0.1"
+  s.version     = "1.0.0"
   s.authors     = ["Tyler Montgomery"]
   s.email       = ["tyler.a.montgomery@gmail.com"]
   s.homepage    = ""
