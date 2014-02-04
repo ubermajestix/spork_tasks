@@ -94,10 +94,9 @@ module Spork
 
     def stop_spork
       print "Stopping spork..."
-      if File.exist?("#{tmp_dir}/spork.pid")
-        pid = File.read("#{tmp_dir}/spork.pid").to_i
+      if pid_to_kill = pid
         begin
-          Process.kill("INT", pid)
+          Process.kill("INT", pid_to_kill)
           print "\033[32m[OK]\033[0m\n"
           sleep 1
         rescue Errno::ESRCH => e
