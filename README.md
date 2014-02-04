@@ -9,7 +9,7 @@ Installing
     gem 'spork_tasks', '~> 1.1.0'
 
     # Add the following line to your Rakefile
-    require 'spork_tasks'
+    require 'spork/tasks'
 
 Tasks
 -----
