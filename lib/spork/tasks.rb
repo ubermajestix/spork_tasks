@@ -128,3 +128,5 @@ module Spork
   end
 end
 
+Spork::Task.new.install
+
