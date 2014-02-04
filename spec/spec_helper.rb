@@ -1,5 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
-require 'spork_tasks'
+require 'spork/task_helper'
 
-
+RSpec.configure do |config|
+  config.order = 'random'
+end

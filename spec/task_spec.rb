@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SporkTasks do
+describe Spork::TaskHelper do
   describe 'install_tasks' do
 
     it "defines Rake tasks" do
@@ -10,7 +10,7 @@ describe SporkTasks do
         expect { Rake.application[name] }.to raise_error(/Don't know how to build task/)
       }
 
-      SporkTasks.new.install
+      Spork::TaskHelper.new.install
 
       names.each { |name|
         expect { Rake.application[name] }.not_to raise_error
