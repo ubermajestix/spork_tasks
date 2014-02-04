@@ -21,10 +21,6 @@ module Spork
 
     include Rake::DSL if defined? Rake::DSL
 
-    def initialize(base = nil, name = nil)
-
-    end
-
     def install
       namespace :spork do
         desc "Start spork server"
@@ -132,5 +128,5 @@ module Spork
   end
 end
 
-Spork::Task.new.install
+Spork::Tasks.new.install
 
