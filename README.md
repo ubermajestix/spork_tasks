@@ -1,19 +1,15 @@
 Spork Tasks
 ===========
-Spork is kind of annoying to deal with. I just want it to run in the background and have an easy way to restart, start, and stop it. So here are my tasks for doing that. 
-
-You can copy the rake tasks wherever you like, but I've packaged them as a rails generator
+Run spork in the background! Provides rake tasks for an easy way to start, stop, restart spork. 
 
 Installing
 ----------
     
-    gem install spork_tasks
-    
-    # If you're using Bundler:
-    gem 'spork_tasks', '~> 1.0.0'
-    
-    rails generate spork_tasks
-    # Copies the rake file for you.
+    # In your Gemfile:
+    gem 'spork_tasks', '~> 1.1.0'
+
+    # Add the following line to your Rakefile
+    require 'spork_tasks'
 
 Tasks
 -----

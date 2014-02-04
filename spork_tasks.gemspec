@@ -12,4 +12,9 @@ Gem::Specification.new do |s|
 
   s.files         = `git ls-files`.split("\n")
   s.require_paths = ["lib"]
+
+  s.add_dependency 'rake'
+  s.add_dependency 'spork'
+
+  s.add_development_dependency 'rspec'
 end
