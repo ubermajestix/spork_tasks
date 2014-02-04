@@ -1,6 +1,8 @@
 require 'spork'
 require 'spork/runner'
 require 'rake'
+require 'socket'
+require 'timeout'
 
 # Let's fork spork and put in the background and forget about it.
 # You can start|stop|restart spork using this rake task
@@ -25,8 +27,9 @@ module Spork
     def install
       namespace :spork do
         desc "Start spork server"
-        task :start do
-          starts_spork
+        task :start, :port do |_, args|
+          port = args[:port]
+          start_spork(port)
         end
 
         desc "Stop spork server"
@@ -39,55 +42,53 @@ module Spork
       end
     end
 
-    def start_spork
+    def start_spork(port = nil)
+      options = []
+      options << "-p#{port}" if port
+      runner = Spork::Runner.new(options, $stderr, $stderr)
+      port = port || runner.find_test_framework.default_port
+
+      if port_bound?(port) || process_running?
+        puts "\033[33m[Spork already running on port #{port}]\033[0m"
+        return
+      end
+
       begin
-        print "Starting spork..."
         pid = fork do
-          # Swallows spork's notifications. I don't want it spewing all over my terminal from the background.
           $stdout = File.new('/dev/null', 'w')
-          # If you want to change the default config you can
-          # specify the command line options here
-          # For example to change the port:
-          # options = ["--port", "7443"]
-          options = []
           begin
-            Spork::Runner.run(options, $stderr, $stderr)
+            runner.run
           rescue => e
             $stderr.puts
             $stderr.puts "#{e.class} => #{e.message}"
             $stderr.puts e.backtrace.join("\n")
           end
-          # TODO maybe swallow stderr now... will that work?
-          # It should b/c its in the same process... or does spork hijack it?
-          # $stderr = File.new('/dev/null', 'w')
         end
 
         # Detach the pid, keep track of the pid, and wait for Rails to start.
-
         Process.detach(pid)
-        File.open("#{tmp_dir}/spork.pid", "w"){|f| f.write pid}
+        File.open(pid_file, "w"){|f| f.write pid}
 
-
-        puts  "\033[35m[Giving Rails #{seconds} seconds to start]\033[0m\n"
-        puts "\033[36mYou can change the wait time in lib/tasks/spork.rake \nif Rails is taking longer than #{seconds} seconds to load\033[0m\n"
-
+        print "Starting spork..."
+        timeout = 20
         seconds = 0
-        until process_running?(pid)
-          print '.'
+        until port_bound?(port)
+          print '.'; $stdout.flush
           seconds += 1
-          break if seconds > 20
+          break if seconds > timeout
           sleep 1
         end
 
         # See if the process actually started
-        if process_running?(pid)
-          puts  "\033[32m[Sporkified!]\033[0m\n"
+        if process_running?
+          puts  "\033[32m[Spork running in background with pid #{pid}]\033[0m\n"
         else
           puts  "\033[31m[Spork failed to start]\033[0m\n"
         end
       rescue StandardError => e
         puts e.inspect
         puts  "\033[31m[Spork failed to start]\033[0m\n"
+        stop_spork
       end
     end
 
@@ -110,21 +111,39 @@ module Spork
       end
     end
 
-    def tmp_dir
-      File.expand_path('../../../tmp', __FILE__)
+    def pid_file
+      dir = File.join(Rails.root, 'tmp')
+      File.join(dir, 'spork.pid')
     end
 
-    def process_running?(pid=nil)
-      unless pid
-        return unless File.exist?("#{tmp_dir}/spork.pid")
-        pid = File.read("#{tmp_dir}/spork.pid").to_i
-      end
+    def pid
+      return unless File.exist?(pid_file)
+      File.read(pid_file).to_i
+    end
+
+    def process_running?
       begin
         Process.kill(0, pid)
+        return true
       rescue Errno::ESRCH => e
         return false
       end
     end
 
+    def port_bound?(port)
+      begin
+        Timeout::timeout(1) do
+          begin
+            s = TCPSocket.new('localhost', port)
+            s.close
+            return true
+          rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+            return false
+          end
+        end
+      rescue Timeout::Error
+        return false
+      end
+    end
   end
 end

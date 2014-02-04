@@ -15,6 +15,9 @@ Tasks
 -----
     rake spork:start
     # Starts the server
+
+    rake spork:start[5678]
+    # Starts spork on port 5768
     
     rake spork:stop
     # Stops the server
@@ -22,6 +25,3 @@ Tasks
     rake spork:restart
     # Restarts spork
     
-TODO
-----
-Better process management. Instead of guessing how long to wait (and sleep) for Rails to start, actually wait for it to start before handing the command line back.
