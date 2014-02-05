@@ -121,6 +121,7 @@ module Spork
     end
 
     def process_running?
+      return false unless pid
       begin
         Process.kill(0, pid)
         return true
